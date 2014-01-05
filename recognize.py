@@ -2,10 +2,13 @@
 from scikits.audiolab import wavread
 import numpy as np
 import os
+from os.path import isfile
 from math import ceil
+import cPickle as pickle
+import sys
+
 import matplotlib.pyplot as mpl
 from scipy.signal import decimate
-
 from sklearn import tree
 
 def samples(directory):
@@ -52,11 +55,22 @@ def train_classifier(directory):
     return clf
 
 if __name__ == '__main__':
-    clf = train_classifier('train/')
+    if isfile("gender.clf"):
+        print 'Using previously trained classifier.'
+        print 'Remove gender.clf to train new one.'
+        clf = pickle.load(open('gender.clf', 'rb'))
+    else:
+        print "Training new classifier."
+        clf = train_classifier('train/')
+        pickle.dump(clf, open('gender.clf', 'wb'))
+
+    test_directory = 'train/'
+    if len(sys.argv) > 1:
+        test_directory = sys.argv[1]
 
     number_of_samples = 0
     success_count = 0
-    for sample in samples('train/'):
+    for sample in samples(test_directory):
         spectrum, bins = aggregate_freqs(*normalized_fft(*sample[1:]),
                 freq_step = 50)
 

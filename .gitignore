@@ -1,3 +1,4 @@
+*.clf
 *pyc
 .DS_Store
 *.swo
